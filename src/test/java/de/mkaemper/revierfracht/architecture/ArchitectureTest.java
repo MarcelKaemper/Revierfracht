@@ -8,6 +8,7 @@ import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,6 +41,13 @@ class ArchitectureTest {
 			.that().resideInAPackage("..domain..")
 			.should().dependOnClassesThat().resideInAnyPackage("org.springframework..", "jakarta.persistence..")
 			.because("domain code must stay framework-free")
+			.allowEmptyShould(true);
+
+	@ArchTest
+	static final ArchRule domain_must_not_call_instant_now = noClasses()
+			.that().resideInAPackage("..domain..")
+			.should().callMethod(Instant.class, "now")
+			.because("domain code must obtain time from the injected Clock bean via Instant.now(clock), not the zone-default Instant.now()")
 			.allowEmptyShould(true);
 
 	@ArchTest
